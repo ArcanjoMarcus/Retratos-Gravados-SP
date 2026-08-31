@@ -1,0 +1,117 @@
+/* ==========================================================================
+   RETRATO GRAVADO SP — ESTILOS
+   Paleta da v1: apenas preto e branco. Nenhuma outra cor deve entrar aqui.
+
+   Sumário
+     1. Base
+     2. Palco e mapa
+     3. Regiões do mosaico
+     4. Ícones e rótulos
+     5. Convite de entrada
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Base
+   -------------------------------------------------------------------------- */
+
+:root {
+  --preto: #000000;
+  --branco: #ffffff;
+
+  /* Opacidade de repouso das regiões. O JS reescreve esse valor a cada
+     quadro; aqui fica só o estado inicial, antes do primeiro movimento.
+     [ATUALIZAR] mantenha em sincronia com CONFIG.visual.opacidadeMinima. */
+  --opacidade-repouso: 0.14;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--preto);
+  color: var(--branco);
+  overflow: hidden;
+}
+
+body {
+  font-family: ui-sans-serif, system-ui, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   2. Palco e mapa
+   Ocupa a tela inteira e centraliza o mapa. A v1 não tem nav bar, cabeçalho,
+   rodapé ou qualquer outro elemento além do mapa.
+   -------------------------------------------------------------------------- */
+
+#palco {
+  display: grid;
+  place-items: center;
+  width: 100vw;
+  height: 100dvh;
+}
+
+#mapa {
+  display: block;
+  width: min(92vmin, 1040px);
+  height: min(92vmin, 1040px);
+}
+
+/* --------------------------------------------------------------------------
+   3. Regiões do mosaico
+   -------------------------------------------------------------------------- */
+
+.regiao {
+  fill: var(--branco);
+  fill-opacity: var(--opacidade-repouso);
+  stroke: none;
+}
+
+/* --------------------------------------------------------------------------
+   4. Ícones e rótulos
+   -------------------------------------------------------------------------- */
+
+/* Ícone de som: puramente informativo, não recebe eventos de mouse. */
+.icone {
+  color: var(--branco);
+  pointer-events: none;
+}
+
+/* Números das regiões. Só aparecem com CONFIG.depuracao.mostrarIndices. */
+.rotulo {
+  fill: var(--branco);
+  font-size: 20px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  text-anchor: middle;
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+/* --------------------------------------------------------------------------
+   5. Convite de entrada
+   [ATUALIZAR] trocar o texto ou o tratamento visual desta tela.
+   -------------------------------------------------------------------------- */
+
+#entrada {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  padding: 0;
+  background: var(--preto);
+  color: var(--branco);
+  font: inherit;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: opacity 600ms ease;
+}
+
+#entrada[hidden] { display: none; }
+#entrada.saindo  { opacity: 0; pointer-events: none; }
+#entrada:focus-visible { outline: 2px solid var(--branco); outline-offset: -6px; }
+
+@media (prefers-reduced-motion: reduce) {
+  #entrada { transition: none; }
+}

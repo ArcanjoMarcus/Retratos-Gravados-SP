@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Retrato Gravado SP</title>
+
+<!--
+================================================================================
+  RETRATO GRAVADO SP — VERSÃO 1
+================================================================================
+  Mosaico geométrico do centro de São Paulo. Cada região é um quadrado do
+  mosaico. Algumas regiões emitem um som contínuo cujo volume e posição
+  estéreo respondem ao movimento do mouse.
+
+  ONDE MEXER
+    css/estilo.css        aparência
+    js/app.js             comportamento, em cinco seções numeradas:
+                            1. configuração
+                            2. índice de mídia   <- imagens e áudios
+                            3. mapa              <- leitura do SVG e camadas
+                            4. motor de áudio
+                            5. interação e inicialização
+    este arquivo          o desenho do mapa (abaixo)
+
+  O script é carregado no fim do <body>, sem sistema de módulos, para que a
+  página abra com duplo clique, sem servidor.
+
+  PONTOS DE EXTENSÃO estão marcados com o comentário [ATUALIZAR].
+================================================================================
+-->
+
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+
+<body>
+
+<div id="palco">
+  <!-- ======================================================================
+       SVG DO MAPA
+       Representação geométrica e abstrata do centro expandido de São Paulo.
+       As posições são livres: o desenho não é cartograficamente exato.
+
+       CONTRATO COM O SCRIPT
+         - Toda forma com o atributo `data-regiao` vira uma região.
+         - `data-nome` é apenas rótulo de referência para o desenvolvedor.
+         - Os índices NÃO são escritos aqui. Eles são calculados na leitura,
+           da esquerda para a direita e de cima para baixo, começando em 0.
+
+       [ATUALIZAR] Para trocar por um mapa vetorial real: substitua os <rect>
+       por <path>/<polygon> mantendo o atributo `data-regiao`. O restante do
+       sistema (índices, recorte de imagens, ícones, áudio) continua valendo,
+       porque tudo é derivado da caixa delimitadora de cada forma.
+       ====================================================================== -->
+  <svg id="mapa" viewBox="0 0 1072 1072" xmlns="http://www.w3.org/2000/svg"
+       role="img" aria-label="Mapa em mosaico do centro de São Paulo">
+
+    <!-- Recortes das imagens: preenchido por JS, um clipPath por região. -->
+    <defs id="recortes"></defs>
+
+    <!-- Camada 1: imagens (fica embaixo; vazia na v1). -->
+    <g id="camada-imagens"></g>
+
+    <!-- Camada 2: o mosaico. Ordem da marcação é irrelevante para o índice. -->
+    <g id="camada-mapa">
+      <rect class="regiao" data-regiao data-nome="Santana"          x="300" y="60"  width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Vila Guilherme"   x="420" y="60"  width="112" height="112"/>
+
+      <rect class="regiao" data-regiao data-nome="Bom Retiro"       x="180" y="180" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Luz"              x="300" y="180" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Pari"             x="420" y="180" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Brás"             x="540" y="180" width="112" height="112"/>
+
+      <rect class="regiao" data-regiao data-nome="Barra Funda"      x="60"  y="300" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Campos Elíseos"   x="180" y="300" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Santa Ifigênia"   x="300" y="300" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Sé"               x="420" y="300" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Belenzinho"       x="540" y="300" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Mooca"            x="660" y="300" width="112" height="112"/>
+
+      <rect class="regiao" data-regiao data-nome="Perdizes"         x="60"  y="420" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Higienópolis"     x="180" y="420" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Vila Buarque"     x="300" y="420" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="República"        x="420" y="420" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Bexiga"           x="540" y="420" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Cambuci"          x="660" y="420" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Ipiranga"         x="780" y="420" width="112" height="112"/>
+
+      <rect class="regiao" data-regiao data-nome="Pacaembu"         x="180" y="540" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Consolação"       x="300" y="540" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Bela Vista"       x="420" y="540" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Liberdade"        x="540" y="540" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Aclimação"        x="660" y="540" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Vila Mariana"     x="780" y="540" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Vila Prudente"    x="900" y="540" width="112" height="112"/>
+
+      <rect class="regiao" data-regiao data-nome="Jardins"          x="300" y="660" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Paraíso"          x="420" y="660" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Vila Clementino"  x="540" y="660" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Saúde"            x="660" y="660" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Sacomã"           x="780" y="660" width="112" height="112"/>
+
+      <rect class="regiao" data-regiao data-nome="Itaim Bibi"       x="420" y="780" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Moema"            x="540" y="780" width="112" height="112"/>
+      <rect class="regiao" data-regiao data-nome="Jabaquara"        x="660" y="780" width="112" height="112"/>
+
+      <rect class="regiao" data-regiao data-nome="Santo Amaro"      x="540" y="900" width="112" height="112"/>
+    </g>
+
+    <!-- Camada 3: ícones de som e rótulos de depuração (preenchida por JS). -->
+    <g id="camada-icones"></g>
+    <g id="camada-rotulos"></g>
+  </svg>
+</div>
+
+<!-- Convite de entrada. Existe por uma razão técnica: navegadores só permitem
+     iniciar áudio depois de um gesto do usuário. Some no primeiro clique. -->
+<button id="entrada" type="button">clique para ouvir</button>
+
+<script src="js/app.js"></script>
+
+</body>
+</html>
